@@ -1,14 +1,14 @@
-using Microsoft.EntityFrameworkCore;
-using ToDoApp.Web.Data;
+﻿using ToDoApp.Application.Interfaces;
+using ToDoApp.Application.Services;
+using ToDoApp.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddDbContext<ToDoContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddScoped<IToDoService, ToDoService>();
 
 var app = builder.Build();
 

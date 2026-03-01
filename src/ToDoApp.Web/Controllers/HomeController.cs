@@ -1,18 +1,18 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
-using ToDoApp.Web.Data;
+﻿using Microsoft.AspNetCore.Mvc;
+using ToDoApp.Application.Interfaces;
+using ToDoApp.Application.Models;
+using ToDoApp.Domain.Entities;
 using ToDoApp.Web.Models;
 
 namespace ToDoApp.Web.Controllers
 {
     public class HomeController : Controller
     {
-        private ToDoContext _context;
+        private readonly IToDoService _service;
 
-        public HomeController(ToDoContext toDoContext)
+        public HomeController(IToDoService service)
         {
-            _context = toDoContext;
+            _service = service;
         }
 
         public IActionResult Index(string id)
@@ -20,41 +20,18 @@ namespace ToDoApp.Web.Controllers
             var filters = new Filters(id);
             ViewBag.Filters = filters;
 
-            ViewBag.Categories = _context.Categories.ToList();
-            ViewBag.Statuses = _context.Statues.ToList();
+            ViewBag.Categories = _service.GetCategories();
+            ViewBag.Statuses = _service.GetStatuses();
             ViewBag.DueFilters = Filters.DueFilterValues;
 
-
-            IQueryable<ToDo> query = _context.ToDos
-                .Include(t => t.Category)
-                .Include(t => t.Status);
-
-            if (filters.HasCategory)
+            var query = new ToDoQuery
             {
-                query = query.Where(t => t.CategoryId == filters.CategoryId);
-            }
-            if (filters.HasStatus)
-            {
-                query = query.Where(t => t.StatusId == filters.StatusId);
-            }
-            if (filters.HasDue)
-            {
-                var today = DateTime.Today;
-                if (filters.IsPast)
-                {
-                    query = query.Where(t => t.DueDate < today);
-                }
-                else if (filters.IsFuture)
-                {
-                    query = query.Where(t => t.DueDate < today);
-                }
-                else if (filters.IsToday)
-                {
-                    query = query.Where(t => t.DueDate == today);
-                }
-            }
+                CategoryId = filters.CategoryId,
+                Due = filters.Due,
+                StatusId = filters.StatusId
+            };
 
-            var tasks = query.OrderBy(t => t.DueDate).ToList();
+            var tasks = _service.GetTasks(query);
 
             return View(tasks);
         }
@@ -62,8 +39,8 @@ namespace ToDoApp.Web.Controllers
         [HttpGet]
         public IActionResult Add()
         {
-            ViewBag.Categories = _context.Categories.ToList();
-            ViewBag.Statuses = _context.Statues.ToList();
+            ViewBag.Categories = _service.GetCategories();
+            ViewBag.Statuses = _service.GetStatuses();
             var task = new ToDo { StatusId = "open" };
             return View(task);
         }
@@ -73,16 +50,13 @@ namespace ToDoApp.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.ToDos.Add(task);
-                _context.SaveChanges();
+                _service.AddTask(task);
                 return RedirectToAction("Index");
             }
-            else
-            {
-                ViewBag.Categories = _context.Categories.ToList();
-                ViewBag.Statues = _context.Statues.ToList();
-                return View(task);
-            }
+
+            ViewBag.Categories = _service.GetCategories();
+            ViewBag.Statuses = _service.GetStatuses();
+            return View(task);
         }
 
         [HttpPost]
@@ -93,29 +67,17 @@ namespace ToDoApp.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult MarkComplete([FromRoute] string id, ToDo Selected)
+        public IActionResult MarkComplete([FromRoute] string id, ToDo selected)
         {
-            Selected = _context.ToDos.Find(Selected.Id);
-            if (Selected != null)
-            {
-                Selected.StatusId = "closed";
-                _context.SaveChanges();
-            }
+            _service.MarkComplete(selected.Id);
             return RedirectToAction("Index", new { ID = id });
         }
 
         [HttpPost]
         public IActionResult DeleteComplete(string id)
         {
-            var toDelete = _context.ToDos.Where(t => t.StatusId == "closed").ToList();
-            foreach (var task in toDelete)
-            {
-                _context.ToDos.Remove(task);
-            }
-            _context.SaveChanges();
-
+            _service.DeleteCompleted();
             return RedirectToAction("Index", new { ID = id });
         }
-
     }
 }

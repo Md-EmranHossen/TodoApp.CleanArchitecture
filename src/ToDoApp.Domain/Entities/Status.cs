@@ -1,4 +1,4 @@
-﻿namespace ToDoApp.Web.Models
+﻿namespace ToDoApp.Domain.Entities
 {
     public class Status
     {

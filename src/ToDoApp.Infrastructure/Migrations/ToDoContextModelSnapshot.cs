@@ -3,20 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using ToDoApp.Web.Data;
+using ToDoApp.Infrastructure.Data;
 
 #nullable disable
 
-namespace ToDoApp.Web.Migrations
+namespace ToDoApp.Infrastructure.Migrations
 {
     [DbContext(typeof(ToDoContext))]
-    [Migration("20260301044122_InitialCreate")]
-    partial class InitialCreate
+    partial class ToDoContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,7 +22,7 @@ namespace ToDoApp.Web.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ToDoApp.Web.Models.Category", b =>
+            modelBuilder.Entity("ToDoApp.Domain.Entities.Category", b =>
                 {
                     b.Property<string>("CategoryId")
                         .HasColumnType("nvarchar(450)");
@@ -66,7 +63,7 @@ namespace ToDoApp.Web.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ToDoApp.Web.Models.Status", b =>
+            modelBuilder.Entity("ToDoApp.Domain.Entities.Status", b =>
                 {
                     b.Property<string>("StatusId")
                         .HasColumnType("nvarchar(450)");
@@ -92,7 +89,7 @@ namespace ToDoApp.Web.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ToDoApp.Web.Models.ToDo", b =>
+            modelBuilder.Entity("ToDoApp.Domain.Entities.ToDo", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -124,15 +121,15 @@ namespace ToDoApp.Web.Migrations
                     b.ToTable("ToDos");
                 });
 
-            modelBuilder.Entity("ToDoApp.Web.Models.ToDo", b =>
+            modelBuilder.Entity("ToDoApp.Domain.Entities.ToDo", b =>
                 {
-                    b.HasOne("ToDoApp.Web.Models.Category", "Category")
+                    b.HasOne("ToDoApp.Domain.Entities.Category", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ToDoApp.Web.Models.Status", "Status")
+                    b.HasOne("ToDoApp.Domain.Entities.Status", "Status")
                         .WithMany()
                         .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -146,3 +143,4 @@ namespace ToDoApp.Web.Migrations
         }
     }
 }
+

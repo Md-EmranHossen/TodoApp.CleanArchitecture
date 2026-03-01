@@ -1,20 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ToDoApp.Web.Models;
+using ToDoApp.Domain.Entities;
 
-namespace ToDoApp.Web.Data
+namespace ToDoApp.Infrastructure.Data
 {
     public class ToDoContext : DbContext
     {
         public ToDoContext(DbContextOptions<ToDoContext> options) : base(options)
         {
-
         }
 
         public DbSet<ToDo> ToDos { get; set; } = null!;
         public DbSet<Category> Categories { get; set; } = null!;
         public DbSet<Status> Statues { get; set; } = null!;
-
-        // Seed data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -29,11 +26,9 @@ namespace ToDoApp.Web.Data
                 );
 
             modelBuilder.Entity<Status>().HasData(
-
-                new Status{ StatusId = "open",Name = "Open" },
+                new Status { StatusId = "open", Name = "Open" },
                 new Status { StatusId = "closed", Name = "Closed" }
                 );
         }
-
     }
 }
