@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using ToDoApp.Application.Interfaces;
+﻿using ToDoApp.Application.Interfaces;
 using ToDoApp.Application.Models;
 using ToDoApp.Domain.Entities;
 
